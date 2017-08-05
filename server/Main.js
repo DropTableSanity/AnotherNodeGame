@@ -16,6 +16,7 @@ var io = require('socket.io')(server);
 setInterval(tick, 30);
 
 function tick() {
+    // entities.push(new Base('123', '123', Math.random(-100, 100) * 1000, Math.random(100) * 1000));
     updateList = [entities, players];
     io.sockets.emit('tick', updateList);
 }
@@ -27,9 +28,11 @@ io.sockets.on('connection',
 
         // Create a new Player object associated with the socket ID
         player = new Player(socket.id);
-        players.append(player);
+        players.push(player);
 
-        entities.appdend(new Base(uuid.v4(), player, 100, 100));  // Spawn the player's base
+        entities.push(new Base(uuid.v4(), player, 100, 100));  // Spawn the player's base
+
+        socket.emit([entities, players])
 
         // Set the player name
         socket.on('name',
@@ -40,6 +43,8 @@ io.sockets.on('connection',
         // Spawn an Entity
         socket.on('spawn',
             function(data) {
+                entities.push(new House(uuid.v4(), player, data['x'], data['y']));
+                console.log(data['x'] + ' ' + data['y']);
                 // TODO: Check for ownership, distance, etc. and Spawn object
             });
 
